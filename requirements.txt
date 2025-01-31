@@ -1,0 +1,9 @@
+streamlit
+opencv-python-headless
+Pillow
+numpy
+requests
+tensorflow
+onnxruntime
+tqdm
+h5py
