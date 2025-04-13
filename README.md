@@ -13,7 +13,7 @@ A web application that converts regular images into oil painting style artwork u
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/yourusername/image-to-oil-painting.git
+git clone https://github.com/Kedhareswer/Image-to-Oil_Paint.git
 cd image-to-oil-painting
 ```
 
