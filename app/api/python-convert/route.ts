@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
     // Calculate parameters for the Python script
     const radius = Math.max(3, Math.floor(parseInt(brushSize) / 20)) // Convert 0-100 to reasonable brush size
     const effectIntensity = Math.max(5, Math.floor(parseInt(intensity) / 10)) // Convert 0-100 to reasonable intensity
-    const brushCount = Math.max(20, Math.floor(parseInt(colorVibrance) / 4)) // Convert 0-100 to reasonable brush count
+    const brushCount = 20 // Fixed brush count for consistent results
+    const colorVibranceValue = Math.max(1, Math.min(200, parseInt(colorVibrance) || 100)) // Convert to number with default 100
 
     // Run the Python script with parameters
     await new Promise((resolve, reject) => {
@@ -47,8 +48,22 @@ export async function POST(request: NextRequest) {
         outputPath,
         radius.toString(),
         effectIntensity.toString(),
-        brushCount.toString()
+        brushCount.toString(),
+        colorVibranceValue.toString() // Convert to string for command line argument
       ])
+
+      // Capture stdout and stderr
+      let stdoutData = "";
+      let stderrData = "";
+      
+      process.stdout.on("data", (data) => {
+        stdoutData += data.toString();
+      });
+      
+      process.stderr.on("data", (data) => {
+        stderrData += data.toString();
+        console.error("Python script error:", data.toString());
+      });
 
       process.on("error", (err) => {
         reject(err)
@@ -58,7 +73,7 @@ export async function POST(request: NextRequest) {
         if (code === 0) {
           resolve(null)
         } else {
-          reject(new Error(`Process exited with code ${code}`))
+          reject(new Error(`Process exited with code ${code}${stderrData ? ': ' + stderrData.trim() : ''}`))
         }
       })
     })
