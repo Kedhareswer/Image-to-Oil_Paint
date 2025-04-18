@@ -11,15 +11,21 @@ def apply_oil_paint_effect(img, radius=4, intensity=6, brush_count=20, color_vib
     - brush_count: Number of colors for quantization
     - color_vibrance: Color enhancement factor
     """
-    # Resize if needed for performance
+    # Aggressive resize for performance while maintaining quality
     h, w = img.shape[:2]
-    img = cv2.resize(img, (w // 2, h // 2)) if max(h, w) > 1000 else img
+    max_dimension = 800  # Limit maximum dimension
+    if max(h, w) > max_dimension:
+        scale = max_dimension / max(h, w)
+        new_w = int(w * scale)
+        new_h = int(h * scale)
+        img = cv2.resize(img, (new_w, new_h), interpolation=cv2.INTER_AREA)
 
     # Normalize for float processing
     img_f = img.astype(np.float32) / 255.0
 
-    # Step 1: Preserve edges but smooth within regions
-    smoothed = cv2.bilateralFilter(img, d=radius*2, sigmaColor=75, sigmaSpace=75)
+    # Step 1: Optimize bilateral filter parameters
+    d = min(radius * 2, 15)  # Cap filter diameter
+    smoothed = cv2.bilateralFilter(img, d=d, sigmaColor=50, sigmaSpace=50)
 
     # Step 2: Apply stylization (soft painterly abstraction)
     stylized = cv2.stylization(smoothed, sigma_s=60, sigma_r=0.5)
