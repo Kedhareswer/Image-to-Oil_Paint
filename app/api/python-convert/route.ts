@@ -5,8 +5,6 @@ import { tmpdir } from "os"
 import { v4 as uuidv4 } from "uuid"
 import { spawn } from "child_process"
 
-const TIMEOUT_MS = 30000; // 30 second timeout
-
 export async function POST(request: NextRequest) {
   try {
     // Get the image data and parameters from the request
@@ -15,11 +13,6 @@ export async function POST(request: NextRequest) {
     const intensity = formData.get("intensity") as string
     const brushSize = formData.get("brushSize") as string
     const colorVibrance = formData.get("colorVibrance") as string
-
-    // Validate image size
-    if (imageFile.size > 10 * 1024 * 1024) { // 10MB limit
-      return NextResponse.json({ error: "Image too large. Maximum size is 10MB" }, { status: 400 })
-    }
 
     if (!imageFile) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 })
@@ -47,7 +40,7 @@ export async function POST(request: NextRequest) {
     const brushCount = 20 // Fixed brush count for consistent results
     const colorVibranceValue = Math.max(1, Math.min(200, parseInt(colorVibrance) || 100)) // Convert to number with default 100
 
-    // Run the Python script with parameters and timeout
+    // Run the Python script with parameters
     await new Promise((resolve, reject) => {
       const process = spawn("python", [
         scriptPath,
@@ -56,14 +49,8 @@ export async function POST(request: NextRequest) {
         radius.toString(),
         effectIntensity.toString(),
         brushCount.toString(),
-        colorVibranceValue.toString()
+        colorVibranceValue.toString() // Convert to string for command line argument
       ])
-
-      // Set timeout
-      const timeoutId = setTimeout(() => {
-        process.kill()
-        reject(new Error("Processing timeout exceeded"))
-      }, TIMEOUT_MS)
 
       // Capture stdout and stderr
       let stdoutData = "";
