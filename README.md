@@ -2,7 +2,11 @@
 
 ![Oil Paint Style Converter](public/placeholder.svg)
 
+[![GitHub license](https://img.shields.io/github/license/Kedhareswer/Image-to-Oil_Paint)](LICENSE)
+
 Transform your ordinary photos into beautiful oil paint style artwork with enhanced texture and depth. This web application uses advanced computer vision techniques to create realistic oil painting effects.
+
+---
 
 ## Features
 
@@ -13,12 +17,16 @@ Transform your ordinary photos into beautiful oil paint style artwork with enhan
 - **Download Options**: Save your oil paint masterpieces to your device
 - **Responsive Design**: Works on desktop and mobile devices
 
+---
+
 ## Technologies Used
 
 - **Frontend**: Next.js, React, TypeScript, Tailwind CSS
 - **Backend**: Python with OpenCV for image processing
 - **UI Components**: Shadcn UI component library
 - **Image Processing**: Advanced computer vision techniques for oil paint effects
+
+---
 
 ## How It Works
 
@@ -27,6 +35,8 @@ The application uses a sophisticated image processing pipeline to transform phot
 1. **Image Analysis**: Your image is analyzed to identify edges, textures, and color patterns
 2. **Brush Stroke Simulation**: Multiple layers of simulated brush strokes are applied
 3. **Color Blending & Texture**: Advanced color quantization and canvas texture create the rich look of oil paintings
+
+---
 
 ## Technical Details
 
@@ -37,6 +47,8 @@ The conversion engine uses several techniques to achieve an authentic oil paint 
 - Adaptive color quantization for the distinctive oil paint look
 - Edge-aware stylization to preserve important details
 - Dynamic brush pressure simulation for realistic results
+
+---
 
 ## Getting Started
 
@@ -77,6 +89,8 @@ The conversion engine uses several techniques to achieve an authentic oil paint 
 
 2. Open your browser and navigate to `http://localhost:3000`
 
+---
+
 ## Usage Tips
 
 For best results:
@@ -87,6 +101,8 @@ For best results:
 - Adjust the intensity sliders to fine-tune the oil paint effect
 - Try different brush sizes for varying artistic styles
 
+---
+
 ## Project Structure
 
 - `/app` - Next.js application pages and API routes
@@ -94,6 +110,8 @@ For best results:
 - `/public` - Static assets
 - `/scripts` - Python scripts for image processing
 - `/styles` - Global CSS styles
+
+---
 
 ## Future Enhancements
 
@@ -103,9 +121,13 @@ For best results:
 - Real-time preview of different settings
 - Video conversion to oil paint style animations
 
+---
+
 ## License
 
-This project is licensed under the GNU General Public License v2.0 - see the LICENSE file for details.
+This project is licensed under the GNU General Public License v2.0 - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## Acknowledgments
 

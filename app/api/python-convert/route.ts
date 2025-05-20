@@ -5,6 +5,11 @@ import { tmpdir } from "os"
 import { v4 as uuidv4 } from "uuid"
 import { spawn } from "child_process"
 
+// Environment configuration
+const pythonPath = process.env.PYTHON_PATH || 'python'
+const tempDirBase = process.env.TEMP_DIR || tmpdir()
+const debugMode = process.env.DEBUG_MODE === 'true'
+
 export async function POST(request: NextRequest) {
   try {
     // Get the image data and parameters from the request
@@ -22,8 +27,26 @@ export async function POST(request: NextRequest) {
     const id = uuidv4()
 
     // Create temp directory for processing
-    const tempDir = join(tmpdir(), "artifyai", id)
-    await mkdir(tempDir, { recursive: true })
+    const tempDir = join(tempDirBase, "artifyai", id)
+    
+    if (debugMode) {
+      console.log("Processing image with parameters:", {
+        intensity,
+        brushSize,
+        colorVibrance,
+        tempDir
+      })
+    }
+    
+    try {
+      await mkdir(tempDir, { recursive: true })
+    } catch (mkdirError) {
+      console.error("Failed to create temp directory:", mkdirError)
+      return NextResponse.json({ 
+        error: "Failed to create temporary directory", 
+        details: mkdirError instanceof Error ? mkdirError.message : String(mkdirError) 
+      }, { status: 500 })
+    }
 
     // Save the uploaded image to the temp directory
     const inputPath = join(tempDir, "input.png")
@@ -42,7 +65,7 @@ export async function POST(request: NextRequest) {
 
     // Run the Python script with parameters
     await new Promise((resolve, reject) => {
-      const process = spawn("python", [
+      const pythonProcess = spawn(pythonPath, [
         scriptPath,
         inputPath,
         outputPath,
@@ -56,24 +79,35 @@ export async function POST(request: NextRequest) {
       let stdoutData = "";
       let stderrData = "";
       
-      process.stdout.on("data", (data) => {
+      pythonProcess.stdout.on("data", (data) => {
         stdoutData += data.toString();
+        if (debugMode) {
+          console.log("Python script output:", data.toString());
+        }
       });
       
-      process.stderr.on("data", (data) => {
+      pythonProcess.stderr.on("data", (data) => {
         stderrData += data.toString();
         console.error("Python script error:", data.toString());
       });
 
-      process.on("error", (err) => {
-        reject(err)
-      })
+      pythonProcess.on("error", (err) => {
+        console.error("Failed to start Python process:", err);
+        reject(err);
+      });
+      
+      // Set a timeout to prevent hanging processes
+      const timeout = setTimeout(() => {
+        pythonProcess.kill();
+        reject(new Error("Python process timed out after 30 seconds"));
+      }, 30000); // 30 second timeout
 
-      process.on("exit", (code) => {
+      pythonProcess.on("exit", (code) => {
+        clearTimeout(timeout);
         if (code === 0) {
-          resolve(null)
+          resolve(null);
         } else {
-          reject(new Error(`Process exited with code ${code}${stderrData ? ': ' + stderrData.trim() : ''}`))
+          reject(new Error(`Process exited with code ${code}${stderrData ? ': ' + stderrData.trim() : ''}`));
         }
       })
     })
@@ -96,6 +130,18 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Error processing image:", error)
-    return NextResponse.json({ error: "Failed to process image" }, { status: 500 })
+    
+    // Log more details about the environment
+    console.error("Environment:", {
+      cwd: process.cwd(),
+      tempDir: tempDirBase,
+      nodeEnv: process.env.NODE_ENV,
+      pythonPath
+    })
+    
+    return NextResponse.json({ 
+      error: "Failed to process image", 
+      details: error instanceof Error ? error.message : String(error) 
+    }, { status: 500 })
   }
 }

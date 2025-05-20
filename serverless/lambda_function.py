@@ -1,5 +1,9 @@
+import json
+import base64
 import cv2
 import numpy as np
+import traceback
+import io
 
 def apply_oil_paint_effect(img, radius=4, intensity=6, brush_count=20, color_vibrance=1.0):
     """Applies a realistic oil paint style filter that retains original image detail.
@@ -45,60 +49,79 @@ def apply_oil_paint_effect(img, radius=4, intensity=6, brush_count=20, color_vib
 
     return (glossy * 255).astype(np.uint8)
 
-# Main execution
-if __name__ == "__main__":
-    import sys
-    import traceback
-    import os
-    
-    if len(sys.argv) != 7:
-        print("Usage: python oil_paint_converter.py <input_path> <output_path> <radius> <intensity> <brush_count> <color_vibrance>")
-        sys.exit(1)
-        
-    input_path = sys.argv[1]
-    output_path = sys.argv[2]
-    
+def lambda_handler(event, context):
     try:
-        radius = int(sys.argv[3])
-        intensity = int(sys.argv[4])
-        brush_count = int(sys.argv[5])
-        color_vibrance = int(sys.argv[6])
+        # Parse the input from the event
+        body = json.loads(event.get('body', '{}'))
         
-        # Verify input file exists and is readable
-        if not os.path.exists(input_path):
-            raise Exception(f"Input file does not exist: {input_path}")
-            
-        # Verify output directory is writable
-        output_dir = os.path.dirname(output_path)
-        if not os.access(output_dir, os.W_OK):
-            raise Exception(f"Output directory is not writable: {output_dir}")
+        # Get the base64-encoded image
+        base64_image = body.get('image')
+        if not base64_image:
+            return {
+                'statusCode': 400,
+                'headers': {'Content-Type': 'application/json'},
+                'body': json.dumps({'error': 'No image provided'})
+            }
         
-        # Read image
-        img = cv2.imread(input_path)
+        # Get parameters with defaults
+        intensity = int(body.get('intensity', 50))
+        brush_size = int(body.get('brushSize', 50))
+        color_vibrance = int(body.get('colorVibrance', 100))
+        
+        # Decode the base64 image
+        image_data = base64.b64decode(base64_image)
+        nparr = np.frombuffer(image_data, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
         if img is None:
-            raise Exception(f"Failed to read image: {input_path}")
-            
+            raise Exception("Failed to decode image")
+        
         # Convert RGBA to RGB if needed
         if len(img.shape) > 2 and img.shape[-1] == 4:
             img = cv2.cvtColor(img, cv2.COLOR_RGBA2RGB)
         
-        # Apply oil paint effect with parameters
+        # Calculate parameters for the conversion
+        radius = max(1, brush_size // 25)  # Scale down radius to reasonable range
+        brush_count = max(6, brush_size // 2)  # Scale down brush count
+        color_vibrance_value = color_vibrance / 100.0  # Scale color vibrance to 0-1 range
+        
+        # Apply oil paint effect
         result = apply_oil_paint_effect(
             img,
-            radius=max(1, radius // 25),  # Scale down radius to reasonable range
+            radius=radius,
             intensity=intensity,
-            brush_count=max(6, brush_count // 2),  # Scale down brush count
-            color_vibrance=color_vibrance / 100.0  # Scale color vibrance to 0-1 range
+            brush_count=brush_count,
+            color_vibrance=color_vibrance_value
         )
         
-        # Save the result
-        success = cv2.imwrite(output_path, result)
-        if not success:
-            raise Exception(f"Failed to write output image to: {output_path}")
-            
-        print("Conversion successful")
-        sys.exit(0)
+        # Encode the result as PNG
+        is_success, buffer = cv2.imencode(".png", result)
+        if not is_success:
+            raise Exception("Failed to encode output image")
+        
+        # Convert to base64 for response
+        encoded_image = base64.b64encode(buffer).decode('utf-8')
+        
+        # Return the processed image
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Cache-Control': 'public, max-age=31536000, immutable'
+            },
+            'body': json.dumps({'image': encoded_image}),
+            'isBase64Encoded': False
+        }
+        
     except Exception as e:
         print(f"Error during conversion: {str(e)}")
         print(f"Traceback: {traceback.format_exc()}")
-        sys.exit(1)
+        
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json'},
+            'body': json.dumps({
+                'error': 'Failed to process image',
+                'details': str(e)
+            })
+        }
