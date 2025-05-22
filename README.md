@@ -22,7 +22,7 @@ Transform your ordinary photos into beautiful oil paint style artwork with enhan
 ## Technologies Used
 
 - **Frontend**: Next.js, React, TypeScript, Tailwind CSS
-- **Backend**: Python with OpenCV for image processing
+- **Backend**: Serverless Python (e.g., AWS Lambda) with OpenCV for the primary oil paint effect. Local Python/OpenCV are used for local health checks and development testing.
 - **UI Components**: Shadcn UI component library
 - **Image Processing**: Advanced computer vision techniques for oil paint effects
 
@@ -48,6 +48,7 @@ The conversion engine uses several techniques to achieve an authentic oil paint 
 - Edge-aware stylization to preserve important details
 - Dynamic brush pressure simulation for realistic results
 
+The core image processing pipeline is deployed as a serverless function (e.g., AWS Lambda) to ensure scalability and availability. See the `serverless/lambda_function.py` for the backend implementation.
 ---
 
 ## Getting Started
@@ -57,6 +58,15 @@ The conversion engine uses several techniques to achieve an authentic oil paint 
 - Node.js (v16 or higher)
 - Python (v3.8 or higher)
 - npm or pnpm
+
+#### Environment Variables
+To use the oil paint effect feature, you need to configure the following environment variable:
+- `SERVERLESS_FUNCTION_URL`: The URL of your deployed serverless oil paint converter function (e.g., AWS Lambda URL).
+Create a `.env.local` file in the project root and add your environment variables there:
+```
+SERVERLESS_FUNCTION_URL=your_lambda_function_url_here
+```
+(Note: The health check API will also report if this URL is not configured.)
 
 ### Installation
 
@@ -109,7 +119,9 @@ For best results:
 - `/components` - React components including the image converter
 - `/public` - Static assets
 - `/scripts` - Python scripts for image processing
+- `/serverless` - Contains the AWS Lambda function code (`lambda_function.py`) for the serverless oil paint conversion.
 - `/styles` - Global CSS styles
+- `cartoon_streamlit_app.py` - A standalone Streamlit application for an experimental cartoon effect (not integrated with the main Next.js app).
 
 ---
 
@@ -125,7 +137,7 @@ For best results:
 
 ## License
 
-This project is licensed under the GNU General Public License v2.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 

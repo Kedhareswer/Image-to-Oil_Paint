@@ -15,10 +15,10 @@ try:
     if test_result is not None:
         sys.exit(0)
     else:
-        print("OpenCV failed to process test image")
+        sys.stderr.write("OpenCV failed to process test image\n")
         sys.exit(1)
         
 except Exception as e:
-    print(f"Error checking OpenCV: {str(e)}")
-    print(f"Traceback: {traceback.format_exc()}")
+    sys.stderr.write(f"Error checking OpenCV: {str(e)}\n")
+    sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
     sys.exit(1)

@@ -52,7 +52,7 @@ if __name__ == "__main__":
     import os
     
     if len(sys.argv) != 7:
-        print("Usage: python oil_paint_converter.py <input_path> <output_path> <radius> <intensity> <brush_count> <color_vibrance>")
+        sys.stderr.write("Usage: python oil_paint_converter.py <input_path> <output_path> <radius> <intensity> <brush_count> <color_vibrance>\n")
         sys.exit(1)
         
     input_path = sys.argv[1]
@@ -99,6 +99,6 @@ if __name__ == "__main__":
         print("Conversion successful")
         sys.exit(0)
     except Exception as e:
-        print(f"Error during conversion: {str(e)}")
-        print(f"Traceback: {traceback.format_exc()}")
+        sys.stderr.write(f"Error during conversion: {str(e)}\n")
+        sys.stderr.write(f"Traceback: {traceback.format_exc()}\n")
         sys.exit(1)
