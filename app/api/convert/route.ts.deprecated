@@ -1,3 +1,5 @@
+// DEPRECATED: This route uses local Python execution and is not suitable for serverless environments.
+// Use /api/serverless-convert for oil paint effect. This file is kept for reference and may be removed in the future.
 import { type NextRequest, NextResponse } from "next/server"
 import { exec } from "child_process"
 import { writeFile, readFile, mkdir } from "fs/promises"
