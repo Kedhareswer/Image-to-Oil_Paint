@@ -19,6 +19,7 @@ export default function ImageConverter({ originalImage, onReset }: ImageConverte
   const [intensity, setIntensity] = useState(50)
   const [brushSize, setBrushSize] = useState(50)
   const [colorVibrance, setColorVibrance] = useState(50)
+  const [brushCount, setBrushCount] = useState(50);
   const { toast } = useToast()
 
   const convertImage = async () => {
@@ -39,9 +40,10 @@ export default function ImageConverter({ originalImage, onReset }: ImageConverte
       formData.append("intensity", intensity.toString())
       formData.append("brushSize", brushSize.toString())
       formData.append("colorVibrance", colorVibrance.toString())
+      formData.append("brushCount", brushCount.toString());
 
       // Call the API endpoint for image conversion
-      const apiResponse = await fetch("/api/python-convert", {
+      const apiResponse = await fetch("/api/serverless-convert", {
         method: "POST",
         body: formData,
       })
@@ -133,6 +135,22 @@ export default function ImageConverter({ originalImage, onReset }: ImageConverte
                   onValueChange={(value) => setColorVibrance(value[0])}
                 />
                 <p className="text-xs text-muted-foreground">Enhances the richness and saturation of colors</p>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <Label htmlFor="brushCount">Brush Detail</Label>
+                  <span className="text-sm text-muted-foreground">{brushCount}%</span>
+                </div>
+                <Slider
+                  id="brushCount"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={[brushCount]}
+                  onValueChange={(value) => setBrushCount(value[0])}
+                />
+                <p className="text-xs text-muted-foreground">Controls the level of detail and number of distinct color regions, affecting texture.</p>
               </div>
             </div>
           </div>

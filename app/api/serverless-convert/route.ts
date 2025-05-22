@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     const intensity = formData.get("intensity") as string
     const brushSize = formData.get("brushSize") as string
     const colorVibrance = formData.get("colorVibrance") as string
+    const brushCount = formData.get("brushCount") as string;
     
     if (!imageFile) {
       return NextResponse.json({ error: "No image provided" }, { status: 400 })
@@ -24,6 +25,7 @@ export async function POST(request: NextRequest) {
       intensity,
       brushSize,
       colorVibrance,
+      brushCount,
       imageSize: bytes.byteLength
     })
     
@@ -37,7 +39,8 @@ export async function POST(request: NextRequest) {
         image: base64Image,
         intensity: parseInt(intensity),
         brushSize: parseInt(brushSize),
-        colorVibrance: parseInt(colorVibrance)
+        colorVibrance: parseInt(colorVibrance),
+        brushCount: parseInt(brushCount || "50")
       })
     })
     

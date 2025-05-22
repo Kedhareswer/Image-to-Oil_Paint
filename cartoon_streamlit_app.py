@@ -74,13 +74,13 @@ class AnimeConverter:
 
 def main():
     st.set_page_config(
-        page_title="Oil Paint Style Converter",
+        page_title="Cartoon Style Converter",
         page_icon="🎨",
         layout="wide"
     )
 
-    st.title("✨ Image to Oil Paint Style Converter")
-    st.write("Transform your photos into Oil Paint-style artwork!")
+    st.title("✨ Image to Cartoon Style Converter")
+    st.write("Transform your photos into Cartoon-style artwork!")
 
     # Initialize converter
     converter = AnimeConverter()
@@ -99,10 +99,10 @@ def main():
             st.image(image, use_column_width=True)
 
         with col2:
-            st.header("Oil Paint Style")
+            st.header("Cartoon Style")
             
             # Convert button
-            if st.button("🎨 Convert to Oil Paint Style"):
+            if st.button("🎨 Convert to Cartoon Style"):
                 with st.spinner("Converting image..."):
                     try:
                         # Convert image
@@ -118,9 +118,9 @@ def main():
                             byte_im = buf.getvalue()
                             
                             st.download_button(
-                                label="⬇️ Download Oil Paint Image",
+                                label="⬇️ Download Cartoon Image",
                                 data=byte_im,
-                                file_name="Oilpaint_style.png",
+                                file_name="Cartoon_style.png",
                                 mime="image/png"
                             )
                     except Exception as e:
@@ -130,7 +130,7 @@ def main():
     st.sidebar.title("ℹ️ About")
     st.sidebar.info(
         """
-        This app transforms your photos into oil paint-style artwork using 
+        This app transforms your photos into cartoon-style artwork using 
         computer vision techniques. 
         
         **Tips for best results:**
